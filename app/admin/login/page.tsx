@@ -24,15 +24,30 @@ export default function AdminLoginPage() {
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupError, setSignupError] = useState<string | null>(null);
   const [signupSuccess, setSignupSuccess] = useState(false);
-  const [adminExists, setAdminExists] = useState(false);
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [adminExists, setAdminExists] = useState(true);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
 
   useEffect(() => {
-    checkIfAdminExists();
+    checkAuth();
   }, []);
 
-  const checkIfAdminExists = async () => {
+  const checkAuth = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (adminData) {
+          router.push('/admin/dashboard');
+          return;
+        }
+      }
+
       const { data, error } = await supabase
         .from('admin_users')
         .select('id')
@@ -44,7 +59,7 @@ export default function AdminLoginPage() {
         setAdminExists(true);
       }
     } catch (err) {
-      console.error('Error checking admin users:', err);
+      console.error('Error checking admin:', err);
     } finally {
       setCheckingAdmin(false);
     }
@@ -108,212 +123,186 @@ export default function AdminLoginPage() {
     setSignupLoading(true);
 
     try {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      const { data: existingAdmins } = await supabase
+        .from('admin_users')
+        .select('count')
+        .single();
+
+      const isFirstAdmin = !existingAdmins || existingAdmins.count === 0;
+
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: signupEmail,
         password: signupPassword,
       });
 
-      if (signUpError) {
-        setSignupError(signUpError.message);
-        setSignupLoading(false);
-        return;
+      if (signUpError) throw signUpError;
+
+      if (!authData.user) {
+        throw new Error('Failed to create account');
       }
 
-      if (!signUpData.user) {
-        setSignupError('Failed to create user account');
-        setSignupLoading(false);
-        return;
-      }
-
-      const { error: insertError } = await supabase
+      const { error: adminInsertError } = await supabase
         .from('admin_users')
-        .insert({
-          id: signUpData.user.id,
+        .insert({ 
+          id: authData.user.id, 
           email: signupEmail,
-          role: 'superadmin',
+          role: 'superadmin'
         });
 
-      if (insertError) {
-        setSignupError(`Account created but failed to set admin role: ${insertError.message}`);
-        setSignupLoading(false);
-        return;
-      }
+      if (adminInsertError) throw adminInsertError;
 
       setSignupSuccess(true);
-      setAdminExists(true);
-
-      setTimeout(() => {
-        setEmail(signupEmail);
-        setPassword(signupPassword);
-        setSignupSuccess(false);
-      }, 3000);
-    } catch (err) {
-      setSignupError('An unexpected error occurred');
-      console.error(err);
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      setSignupError(error.message || 'An unexpected error occurred');
     } finally {
       setSignupLoading(false);
     }
   };
 
-  if (checkingAdmin) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/40 flex items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5 mb-6 hover:opacity-80 transition-opacity">
-            <Sparkles className="w-8 h-8 text-emerald-600" />
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">Impactly</span>
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
-          <p className="text-gray-600">Sign in to manage your Impactly platform</p>
-        </div>
+        <Link href="/" className="flex items-center justify-center gap-2.5 mb-8">
+          <Sparkles className="w-10 h-10 text-emerald-600" />
+          <span className="text-3xl font-bold text-slate-900 tracking-tight">Impactly</span>
+        </Link>
 
-        {!adminExists && (
-          <Card className="border-green-200 bg-green-50 mb-6">
+        {checkingAdmin ? (
+          <Card>
+            <CardContent className="pt-6 flex flex-col items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mb-4" />
+              <p className="text-slate-600">Checking admin status...</p>
+            </CardContent>
+          </Card>
+        ) : !adminExists ? (
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-900">
-                <UserPlus className="w-5 h-5" />
-                First Time Setup
+              <CardTitle className="flex items-center gap-2">
+                <UserPlus className="w-6 h-6 text-emerald-600" />
+                Create Admin Account
               </CardTitle>
-              <CardDescription className="text-green-800">
-                No admin exists yet. Create your first admin account below.
+              <CardDescription>
+                No admin account exists. Create the first admin account to manage Impactly.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {signupSuccess ? (
-                <div className="text-center py-4">
-                  <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-3" />
-                  <p className="text-green-900 font-semibold mb-2">Admin account created!</p>
-                  <p className="text-sm text-green-800">You can now login with your credentials below.</p>
+                <div className="text-center py-8">
+                  <CheckCircle className="w-16 h-16 text-emerald-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">Account Created!</h3>
+                  <p className="text-slate-600 mb-6">
+                    Check your email to verify your account, then sign in below.
+                  </p>
+                  <Button
+                    onClick={() => {
+                      setSignupSuccess(false);
+                      setAdminExists(true);
+                    }}
+                    className="w-full"
+                  >
+                    Continue to Sign In
+                  </Button>
                 </div>
               ) : (
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Admin Email</Label>
+                    <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
                       type="email"
-                      placeholder="admin@example.com"
+                      placeholder="admin@impactly.com"
                       value={signupEmail}
                       onChange={(e) => setSignupEmail(e.target.value)}
                       required
-                      className="rounded-xl"
+                      disabled={signupLoading}
                     />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Admin Password</Label>
+                    <Label htmlFor="signup-password">Password</Label>
                     <Input
                       id="signup-password"
                       type="password"
-                      placeholder="Create a strong password"
+                      placeholder="••••••••"
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
                       required
+                      disabled={signupLoading}
                       minLength={6}
-                      className="rounded-xl"
                     />
-                    <p className="text-xs text-green-700">Minimum 6 characters</p>
                   </div>
-
                   {signupError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                    <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
                       {signupError}
                     </div>
                   )}
-
-                  <Button
-                    type="submit"
-                    disabled={signupLoading}
-                    className="w-full rounded-xl bg-green-600 hover:bg-green-700"
-                  >
+                  <Button type="submit" className="w-full" disabled={signupLoading}>
                     {signupLoading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating admin account...
+                        Creating Account...
                       </>
                     ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Create Admin Account
-                      </>
+                      'Create Admin Account'
                     )}
                   </Button>
                 </form>
               )}
             </CardContent>
           </Card>
-        )}
-
-        <Card className="border-gray-200">
-          <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access the admin panel</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@impactly.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="rounded-xl"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="rounded-xl"
-                />
-              </div>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                  {error}
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Admin Sign In</CardTitle>
+              <CardDescription>
+                Sign in to access the Impactly admin dashboard
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="admin@impactly.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
                 </div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-blue-600 hover:bg-blue-700"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign In'
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                {error && (
+                  <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+                    {error}
+                  </div>
                 )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <Link href="/" className="hover:text-gray-900">
-            ← Back to homepage
-          </Link>
-        </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Signing In...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
