@@ -1,40 +1,36 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Sparkles, ArrowLeft, Search, Filter, Heart, Loader2, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import { Sparkles, ArrowLeft, Heart, Loader as Loader2, CircleAlert as AlertCircle, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Card } from '@/components/ui/card';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+
+const CATEGORIES = [
+  'all', 'education', 'health', 'poverty', 'environment', 'animals', 'humans', 'research',
+];
+
+const CATEGORY_API_MAP: Record<string, string> = {
+  all: '',
+  education: 'education',
+  health: 'health',
+  poverty: 'poverty',
+  environment: 'environment',
+  animals: 'animals',
+  humans: 'humans',
+  research: 'research',
+};
 
 type Nonprofit = {
   nonprofitSlug: string;
   name: string;
-  description: string;
-  logoUrl: string;
-  coverImageUrl: string;
-  category: string;
-  locationAddress: string;
-};
-
-const CATEGORIES = ['all', 'animals', 'arts', 'education', 'environment', 'health', 'humans', 'research'];
-
-const CATEGORY_API_MAP: Record<string, string> = {
-  'all': 'all',
-  'animals': 'animals',
-  'arts': 'culture',
-  'education': 'education',
-  'environment': 'environment',
-  'health': 'health',
-  'humans': 'humans',
-  'research': 'research',
+  description?: string;
+  coverImageUrl?: string;
+  logoUrl?: string;
+  category?: string;
+  locationAddress?: string;
 };
 
 export default function CharitiesPage() {
@@ -48,6 +44,7 @@ export default function CharitiesPage() {
 
   useEffect(() => {
     fetchNonprofits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCategory]);
 
   const fetchNonprofits = async () => {
@@ -283,44 +280,47 @@ export default function CharitiesPage() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {paginatedNonprofits.map((nonprofit) => (
-                <Card
+                <Link
                   key={nonprofit.nonprofitSlug}
-                  className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl hover:shadow-xl hover:bg-white transition-all hover:-translate-y-1 overflow-hidden group"
+                  href={`/marketplace/charity/${nonprofit.nonprofitSlug}`}
+                  className="block transition-all hover:-translate-y-1"
                 >
-                  <div className="aspect-video overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
-                    {nonprofit.coverImageUrl || nonprofit.logoUrl ? (
-                      <img
-                        src={nonprofit.coverImageUrl || nonprofit.logoUrl}
-                        alt={nonprofit.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Heart className="w-20 h-20 text-slate-300" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-semibold text-xl text-slate-900 mb-2 line-clamp-2">
-                      {nonprofit.name}
-                    </h3>
-                    {nonprofit.category && (
-                      <p className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full inline-block mb-3">
-                        {nonprofit.category}
-                      </p>
-                    )}
-                    {nonprofit.description && (
-                      <p className="text-sm text-slate-600 font-light line-clamp-3 mb-4">
-                        {nonprofit.description}
-                      </p>
-                    )}
-                    {nonprofit.locationAddress && (
-                      <p className="text-xs text-slate-500 font-light">
-                        {nonprofit.locationAddress}
-                      </p>
-                    )}
-                  </div>
-                </Card>
+                  <Card className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl hover:shadow-xl hover:bg-white transition-all hover:-translate-y-1 overflow-hidden group">
+                    <div className="aspect-video overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100">
+                      {nonprofit.coverImageUrl || nonprofit.logoUrl ? (
+                        <img
+                          src={nonprofit.coverImageUrl || nonprofit.logoUrl}
+                          alt={nonprofit.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Heart className="w-20 h-20 text-slate-300" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-semibold text-xl text-slate-900 mb-2 line-clamp-2">
+                        {nonprofit.name}
+                      </h3>
+                      {nonprofit.category && (
+                        <p className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full inline-block mb-3">
+                          {nonprofit.category}
+                        </p>
+                      )}
+                      {nonprofit.description && (
+                        <p className="text-sm text-slate-600 font-light line-clamp-3 mb-4">
+                          {nonprofit.description}
+                        </p>
+                      )}
+                      {nonprofit.locationAddress && (
+                        <p className="text-xs text-slate-500 font-light">
+                          {nonprofit.locationAddress}
+                        </p>
+                      )}
+                    </div>
+                  </Card>
+                </Link>
               ))}
             </div>
 
