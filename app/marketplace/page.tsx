@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { SharedHeader } from '@/components/shared-header';
 import Link from 'next/link';
+import { SharedFooter } from '@/components/shared-footer';
 import { Gift, Search, Loader as Loader2, CircleAlert as AlertCircle, Sparkles, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -303,52 +304,7 @@ export default function MarketplacePage() {
         )}
       </main>
 
-      <footer className="bg-white/80 backdrop-blur-md border-t border-slate-200/50 py-16 mt-24">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="grid md:grid-cols-4 gap-10">
-            <div>
-              <div className="flex items-center gap-2.5 mb-4">
-                <Sparkles className="w-6 h-6 text-emerald-600" />
-                <span className="text-xl font-bold text-slate-900 tracking-tight">Impactly</span>
-              </div>
-              <p className="text-slate-600 text-sm font-light leading-relaxed">
-                BUY your favorite giftcards. EARN impact coin. VOTE with others on where our profits should go to create community change.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Product</h4>
-              <ul className="space-y-2.5 text-sm text-slate-600 font-light">
-                <li><Link href="/marketplace" className="hover:text-slate-900">Marketplace</Link></li>
-                <li><Link href="/impact" className="hover:text-slate-900">Social Impact</Link></li>
-                <li><Link href="/charities" className="hover:text-slate-900">Partners</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Company</h4>
-              <ul className="space-y-2.5 text-sm text-slate-600 font-light">
-                <li><Link href="/about" className="hover:text-slate-900">About</Link></li>
-                <li><Link href="/contact" className="hover:text-slate-900">Contact</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Legal</h4>
-              <ul className="space-y-2.5 text-sm text-slate-600 font-light">
-                <li><Link href="/privacy" className="hover:text-slate-900">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-slate-900">Terms</Link></li>
-                <li><Link href="/admin/login" className="hover:text-slate-900">Admin</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-200 mt-12 pt-8 text-center">
-            <p className="text-sm font-medium text-slate-700 mb-2">Social Impact Economy</p>
-            <p className="text-xs text-slate-500 font-light">© 2025 Impactly. All rights reserved</p>
-          </div>
-        </div>
-      </footer>
+      <SharedFooter />
     </div>
   );
 }

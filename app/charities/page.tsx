@@ -1,5 +1,7 @@
 'use client';
 
+import { SharedHeader } from '@/components/shared-header';
+import { SharedFooter } from '@/components/shared-footer';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sparkles, ArrowLeft, Heart, Loader as Loader2, CircleAlert as AlertCircle, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -170,30 +172,7 @@ export default function CharitiesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50/30 to-amber-50/40">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Sparkles className="w-7 h-7 text-emerald-600" />
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">Impactly</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-10">
-            <Link href="/marketplace" className="text-slate-700 hover:text-slate-900 transition-colors text-base">
-              Marketplace
-            </Link>
-            <Link href="/impact" className="text-slate-700 hover:text-slate-900 transition-colors text-base">
-              Social Impact
-            </Link>
-            <Link href="/charities" className="text-slate-900 font-medium">
-              Partners
-            </Link>
-            <Link href="/auth">
-              <Button className="rounded-full px-7 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium shadow-sm">
-                Sign In
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <SharedHeader />
 
       <main className="max-w-7xl mx-auto px-8 py-16">
         <div className="mb-16">
@@ -348,52 +327,7 @@ export default function CharitiesPage() {
         )}
       </main>
 
-      <footer className="bg-white/80 backdrop-blur-md border-t border-slate-200/50 py-16 mt-24">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="grid md:grid-cols-4 gap-10">
-            <div>
-              <div className="flex items-center gap-2.5 mb-4">
-                <Sparkles className="w-6 h-6 text-emerald-600" />
-                <span className="text-xl font-bold text-slate-900 tracking-tight">Impactly</span>
-              </div>
-              <p className="text-slate-600 text-sm font-light leading-relaxed">
-                BUY your favorite giftcards. EARN impact coin. VOTE with others on where profits should go to create community change.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Product</h4>
-              <ul className="space-y-2.5 text-sm text-slate-600 font-light">
-                <li><Link href="/marketplace" className="hover:text-slate-900">Marketplace</Link></li>
-                <li><Link href="/impact" className="hover:text-slate-900">Social Impact</Link></li>
-                <li><Link href="/charities" className="hover:text-slate-900">Partners</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Company</h4>
-              <ul className="space-y-2.5 text-sm text-slate-600 font-light">
-                <li><Link href="/about" className="hover:text-slate-900">About</Link></li>
-                <li><Link href="/contact" className="hover:text-slate-900">Contact</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Legal</h4>
-              <ul className="space-y-2.5 text-sm text-slate-600 font-light">
-                <li><Link href="/privacy" className="hover:text-slate-900">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-slate-900">Terms</Link></li>
-                <li><Link href="/admin/login" className="hover:text-slate-900">Admin</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-slate-200 mt-12 pt-8 text-center">
-            <p className="text-sm font-medium text-slate-700 mb-2">Social Impact Economy</p>
-            <p className="text-xs text-slate-500 font-light">© 2025 Impactly. All rights reserved</p>
-          </div>
-        </div>
-      </footer>
+      <SharedFooter />
     </div>
   );
 }

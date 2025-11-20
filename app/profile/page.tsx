@@ -1,5 +1,7 @@
 'use client';
 
+import { SharedHeader } from '@/components/shared-header';
+import { SharedFooter } from '@/components/shared-footer';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -71,14 +73,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50/30 to-amber-50/40">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Sparkles className="w-7 h-7 text-emerald-600" />
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">Impactly</span>
-          </Link>
-        </div>
-      </header>
+      <SharedHeader />
 
       <main className="max-w-4xl mx-auto px-8 py-16">
         <Link href="/impact" className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 mb-8 transition-colors">

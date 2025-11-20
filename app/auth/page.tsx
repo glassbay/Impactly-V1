@@ -1,5 +1,7 @@
 'use client';
 
+import { SharedHeader } from '@/components/shared-header';
+import { SharedFooter } from '@/components/shared-footer';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';

@@ -235,6 +235,7 @@ INSERT INTO social_media_links (platform, url, display_order, is_active)
 VALUES
   ('Telegram', 'https://t.me/impactly', 1, true),
   ('X', 'https://x.com/impactly', 2, true),
+  ('LinkedIn', 'https://linkedin.com/company/impactly', 3, true)
 ON CONFLICT DO NOTHING;
 
 -- Update admin settings to include profit split percentage
