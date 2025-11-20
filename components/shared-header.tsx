@@ -14,9 +14,15 @@ type SocialLink = {
   is_active: boolean;
 };
 
+const DEFAULT_SOCIAL_LINKS: SocialLink[] = [
+  { platform: 'Telegram', url: 'https://t.me/impactly', display_order: 1, is_active: true },
+  { platform: 'X', url: 'https://x.com/impactly', display_order: 2, is_active: true },
+  { platform: 'LinkedIn', url: 'https://linkedin.com/company/impactly', display_order: 3, is_active: true }
+];
+
 export function SharedHeader() {
   const { user } = useAuth();
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(DEFAULT_SOCIAL_LINKS);
 
   useEffect(() => {
     fetchSocialLinks();
@@ -25,17 +31,21 @@ export function SharedHeader() {
   const fetchSocialLinks = async () => {
     try {
       const supabase = createClient();
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('social_media_links')
         .select('*')
         .eq('is_active', true)
         .order('display_order');
 
-      if (data) {
+      if (data && data.length > 0) {
         setSocialLinks(data);
+      } else if (error) {
+        console.log('Using default social links (table not found)');
+        setSocialLinks(DEFAULT_SOCIAL_LINKS);
       }
     } catch (error) {
-      console.error('Failed to fetch social links:', error);
+      console.log('Using default social links (fetch failed)');
+      setSocialLinks(DEFAULT_SOCIAL_LINKS);
     }
   };
 

@@ -3,6 +3,12 @@ import { createClient } from '@/lib/supabase-server';
 
 export const dynamic = 'force-dynamic';
 
+const DEFAULT_LINKS = [
+  { platform: 'Telegram', url: 'https://t.me/impactly', display_order: 1, is_active: true },
+  { platform: 'X', url: 'https://x.com/impactly', display_order: 2, is_active: true },
+  { platform: 'LinkedIn', url: 'https://linkedin.com/company/impactly', display_order: 3, is_active: true }
+];
+
 export async function GET() {
   const supabase = createClient();
 
@@ -13,8 +19,9 @@ export async function GET() {
     .order('display_order');
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.log('Social links table not found, using defaults');
+    return NextResponse.json({ links: DEFAULT_LINKS });
   }
 
-  return NextResponse.json({ links: data || [] });
+  return NextResponse.json({ links: data && data.length > 0 ? data : DEFAULT_LINKS });
 }

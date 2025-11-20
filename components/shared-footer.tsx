@@ -11,8 +11,14 @@ type SocialLink = {
   is_active: boolean;
 };
 
+const DEFAULT_SOCIAL_LINKS: SocialLink[] = [
+  { platform: 'Telegram', url: 'https://t.me/impactly', display_order: 1, is_active: true },
+  { platform: 'X', url: 'https://x.com/impactly', display_order: 2, is_active: true },
+  { platform: 'LinkedIn', url: 'https://linkedin.com/company/impactly', display_order: 3, is_active: true }
+];
+
 export function SharedFooter() {
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(DEFAULT_SOCIAL_LINKS);
 
   useEffect(() => {
     fetchSocialLinks();
@@ -23,10 +29,12 @@ export function SharedFooter() {
       const response = await fetch('/api/social-links');
       if (response.ok) {
         const data = await response.json();
-        setSocialLinks(data.links || []);
+        if (data.links && data.links.length > 0) {
+          setSocialLinks(data.links);
+        }
       }
     } catch (error) {
-      console.error('Failed to fetch social links:', error);
+      console.log('Using default social links');
     }
   };
 
