@@ -180,9 +180,9 @@ export default function Home() {
                       </div>
                       <CardContent className="p-5">
                         <h3 className="font-semibold text-lg text-slate-900 mb-1.5 line-clamp-2">
-                          {product.brand.brandName}
+                          {product.brand?.brandName || product.productName || 'Gift Card'}
                         </h3>
-                        {product.fixedRecipientDenominations.length > 0 && (
+                        {product.fixedRecipientDenominations?.length > 0 && (
                           <p className="text-sm text-slate-500">
                             From {product.recipientCurrencyCode} {product.fixedRecipientDenominations[0]}
                           </p>
